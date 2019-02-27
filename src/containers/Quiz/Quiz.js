@@ -32,13 +32,11 @@ class Quiz extends Component {
   }
 
   onAnswerClickHandler = answerId => {
-    const activeQuestion = this.state.activeQuestion
+    console.log('Answer ID: ', answerId)
 
-    if (answerId === this.state.quiz[activeQuestion].rightAnswerId) {
-      this.setState({
-        activeQuestion: activeQuestion + 1
-      })
-    }
+    this.setState({
+      activeQuestion: this.state.activeQuestion + 1
+    })
   }
 
   render() {
