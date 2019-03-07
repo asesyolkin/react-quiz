@@ -1,26 +1,42 @@
 import React from 'react';
 import classes from './FinishedQuiz.css'
+// import Quiz from '../../containers/Quiz/Quiz';
 
 const FinishedQuiz = props => {
+  let numbRightAnswers = 0
+
+  for (let key in props.results) {
+    if (props.results[key] === 'success') numbRightAnswers++
+  }
+
   return (
     <div className={classes.FinishedQuiz}>
       <ul>
-        <li>
-          <strong>1. </strong>
-          How are you
-          <i className={'fa fa-times ' + classes.error} />
-        </li>
-        <li>
-          <strong>1. </strong>
-          How are you
-          <i className={'fa fa-check ' + classes.success} />
-        </li>
+        { props.quiz.map((answer, index) => {
+          const questionClasses = []
+
+          if (props.results[answer.id - 1] === 'success') {
+            questionClasses.push('fa fa-check')
+            questionClasses.push(classes.success)
+          } else {
+            questionClasses.push('fa fa-times')
+            questionClasses.push(classes.error)
+          }
+
+          return (
+            <li key={index}>
+              <strong>{answer.id}. </strong>
+              {answer.question}
+              <i className={questionClasses.join(' ')} />
+            </li>
+          )
+        }) }
       </ul>
 
-      <p>Правильно 4 из 10</p>
+      <p>Правильно {numbRightAnswers} из {props.quiz.length}</p>
 
       <div>
-        <button>Повторить</button>
+        <button onClick={() => props.repeat()}>Повторить</button>
       </div>
     </div>
   )
