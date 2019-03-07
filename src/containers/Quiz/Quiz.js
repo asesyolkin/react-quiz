@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
-import classes from './Quiz.css';
+import React, {Component} from 'react'
+import classes from './Quiz.css'
 import ActiveQuiz from '../../components/ActiveQuiz/ActiveQuiz'
 import FinishedQuiz from '../../components/FinishedQuiz/FinishedQuiz'
 
 class Quiz extends Component {
   state = {
-    results: [], // []: 'success' 'error'
+    results: {}, // {[id]: success error}
     isFinished: false,
     activeQuestion: 0,
     answerState: null, // { [id]: 'success' 'error' }
@@ -27,7 +27,7 @@ class Quiz extends Component {
         id: 2,
         answers: [
           {text: '1700', id: 1},
-          {text: '1705', id: 2},
+          {text: '1702', id: 2},
           {text: '1703', id: 3},
           {text: '1803', id: 4}
         ]
@@ -37,67 +37,57 @@ class Quiz extends Component {
 
   onAnswerClickHandler = answerId => {
     if (this.state.answerState) {
-      // const key = Object.keys(this.state.answerState)[0]
-      // if (this.state.answerState[key] === 'success' ) {
-      //   return
-      // }
-      return
+      const key = Object.keys(this.state.answerState)[0]
+      if (this.state.answerState[key] === 'success') {
+        return
+      }
     }
     
     const question = this.state.quiz[this.state.activeQuestion]
     const results = this.state.results
 
     if (question.rightAnswerId === answerId) {
-      // if (!results[answerId]) {
-      //   results[answerId] = 'success'
-      // } // ЗАЧЕМ ЭТО СДЕЛАЛИ??? ПРОВЕРИТЬ!!!
+      if (!results[question.id]) {
+        results[question.id] = 'success'
+      }
       
-      results.push('success')
       this.setState({
         answerState: {[answerId]: 'success'},
         results
       })
       
-      this.nextQuestion()
+      const timeout = window.setTimeout(() => {
+        if (this.isQuizFinished()) {
+          this.setState({
+            isFinished: true
+          })
+        } else {
+          this.setState({
+            activeQuestion: this.state.activeQuestion + 1,
+            answerState: null
+          })
+        }
+        window.clearTimeout(timeout)
+      }, 1000)
     } else {
-      // results[answerId] = 'error'
-      results.push('error')
+      results[question.id] = 'error'
       this.setState({
         answerState: {[answerId]: 'error'},
         results
       })
-      
-      this.nextQuestion()
     }
-  }
-
-  nextQuestion() {
-    const timeout = window.setTimeout(() => {
-      if (this.isQuizFinished()) {
-        this.setState({
-          isFinished: true
-        })
-      } else {
-        this.setState({
-          activeQuestion: this.state.activeQuestion + 1,
-          answerState: null
-        })
-      }
-
-      window.clearTimeout(timeout)
-    }, 1000)
   }
 
   isQuizFinished() {
     return this.state.activeQuestion + 1 === this.state.quiz.length
   }
 
-  repeat = () => {
+  retryHandler = () => {
     this.setState({
-      isFinished: false,
       activeQuestion: 0,
       answerState: null,
-      results: []
+      isFinished: false,
+      results: {}
     })
   }
 
@@ -112,7 +102,7 @@ class Quiz extends Component {
               ? <FinishedQuiz 
                   results={this.state.results}
                   quiz={this.state.quiz}
-                  repeat={this.repeat}
+                  onRetry={this.retryHandler}
                 />
               : <ActiveQuiz 
                   answers={this.state.quiz[this.state.activeQuestion].answers}
@@ -129,4 +119,5 @@ class Quiz extends Component {
   }
 }
 
-export default Quiz;
+
+export default Quiz
